@@ -1,4 +1,4 @@
 {
-    "editor.mouseWheelScrollSensitivity": 0.01,
-    "editor.formatOnSave": true
+  "editor.mouseWheelScrollSensitivity": 1,
+  "editor.formatOnSave": true
 }
