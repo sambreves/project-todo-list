@@ -1,13 +1,13 @@
 .signInButton {
   height: 2.5rem;
   border-radius: 3rem;
-  background: transparent;
-  border: 0;
+  background-color: white;
+  border-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 1.5rem;
-  color: #fff;
+  color: rgb(17, 12, 12);
   font-weight: bold;
   transition: filter 0.2s;
 
