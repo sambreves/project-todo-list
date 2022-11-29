@@ -1,5 +1,7 @@
+import { collection, doc, getDocs, query, where } from "firebase/firestore";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import db from "../../../services/firebaseConnection";
 
 export const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
@@ -10,6 +12,27 @@ export const authOptions: NextAuthOptions = {
     }),
     // ...add more providers here
   ],
+  session: {
+    strategy: "jwt",
+  },
+  callbacks: {
+    async session({ session, token, user }) {
+      try {
+        const q = query(collection(db, "supporters"));
+        const respDonate = await getDocs(q);
+        const isSupporter: boolean = respDonate.docs[0].data().email ? true : false;
+        return {
+          ...session,
+          supporter: isSupporter,
+        };
+      } catch (e) {
+        return {
+          ...session,
+          supporter: false,
+        };
+      }
+    },
+  },
 };
 
 export default NextAuth(authOptions);

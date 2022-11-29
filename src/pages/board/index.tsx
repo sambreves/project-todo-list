@@ -1,5 +1,5 @@
 import styles from "./styles.module.scss";
-import { FiCalendar, FiEdit2, FiPlus, FiTrash } from "react-icons/fi";
+import { FiCalendar, FiClock, FiEdit2, FiPlus, FiTrash } from "react-icons/fi";
 import Head from "next/head";
 import { useState, FormEvent } from "react";
 import db from "../../services/firebaseConnection";
@@ -8,6 +8,7 @@ import { GetServerSideProps } from "next";
 import { getSession } from "next-auth/react";
 import { format } from "date-fns";
 import Link from "next/link";
+import { SupportButton } from "../../components/SupportButton";
 
 type TaskList = {
   id: string;
@@ -22,6 +23,7 @@ interface BoardProps {
   user: {
     name: string;
     email: string;
+    vip: boolean;
   };
   data: string;
 }
@@ -57,7 +59,6 @@ export default function Board({ user, data }: BoardProps) {
 
         setTaskList([...taskList, data]);
         setInput("");
-        console.log(data);
       });
 
       console.log("Document registered with sucess!");
@@ -111,12 +112,12 @@ export default function Board({ user, data }: BoardProps) {
                     <FiCalendar size={20} color="#FFB800" />
                     <time>{task.createdFormated}</time>
                   </div>
-                  {/* {user.vip && (
+                  {user.vip && (
                     <button onClick={() => handleEditTask(task)}>
                       <FiEdit2 size={20} color="#FFF" />
                       <span>Editar</span>
                     </button>
-                  )} */}
+                  )}
                 </div>
                 <button onClick={() => handleDelete(task.id)}>
                   <FiTrash size={20} color="#FF3636" />
@@ -127,12 +128,23 @@ export default function Board({ user, data }: BoardProps) {
           ))}
         </section>
       </main>
+
+      {user.vip && (
+        <div className={styles.vipContainer}>
+          <h3>Obrigado por apoiar esse projeto.</h3>
+          <div>
+            <FiClock size={28} color="#FFF" />
+          </div>
+        </div>
+      )}
+
+      <SupportButton />
     </>
   );
 }
 
 export async function getServerSideProps({ req }: { req: any }) {
-  const session = await getSession({ req });
+  const session: any = await getSession({ req });
 
   if (!session?.user) {
     return {
@@ -162,6 +174,7 @@ export async function getServerSideProps({ req }: { req: any }) {
   const user = {
     name: session?.user.name,
     email: session?.user.email,
+    vip: session?.supporter,
   };
 
   return {
