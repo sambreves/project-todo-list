@@ -1,9 +1,19 @@
 import styles from "./styles.module.scss";
-import { FiCalendar, FiClock, FiEdit2, FiPlus, FiTrash } from "react-icons/fi";
+import { FiCalendar, FiClock, FiEdit2, FiPlus, FiTrash, FiX } from "react-icons/fi";
 import Head from "next/head";
 import { useState, FormEvent } from "react";
 import db from "../../services/firebaseConnection";
-import { collection, addDoc, getDocs, where, query, orderBy } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  where,
+  query,
+  orderBy,
+  deleteDoc,
+  doc,
+  setDoc,
+} from "firebase/firestore";
 import { GetServerSideProps } from "next";
 import { getSession } from "next-auth/react";
 import { format } from "date-fns";
@@ -31,6 +41,7 @@ interface BoardProps {
 export default function Board({ user, data }: BoardProps) {
   const [input, setInput] = useState("");
   const [taskList, setTaskList] = useState<TaskList[]>(JSON.parse(data));
+  const [taskEdit, setTaskEdit] = useState<TaskList | null>(null);
 
   //Add tasks to Firestore Database
   async function handleAddTask(e: FormEvent) {
@@ -39,6 +50,28 @@ export default function Board({ user, data }: BoardProps) {
     if (input === "") {
       alert("Add some tasks!");
       return;
+    }
+
+    if (taskEdit) {
+      try {
+        const taskRef = doc(db, "tasks", taskEdit.id);
+        await setDoc(taskRef, {
+          task: input,
+          created: new Date(),
+        }).then(() => {
+          const data = taskList;
+          const taskIndex = taskList.findIndex((task) => task.id === taskEdit.id);
+
+          data[taskIndex].task = input;
+
+          setTaskList(data);
+          setTaskEdit(null);
+          setInput("");
+        });
+        return;
+      } catch (error) {
+        return;
+      }
     }
 
     try {
@@ -67,14 +100,27 @@ export default function Board({ user, data }: BoardProps) {
     }
   }
 
-  //Edit tasks
-  async function handleEditTask(task: TaskList) {
-    //TODO
-  }
-
   //Delete tasks
   async function handleDelete(id: string) {
-    //TODO
+    try {
+      await deleteDoc(doc(db, "tasks", id));
+      const newTasks = taskList.filter((task) => task.id !== id);
+      setTaskList(newTasks);
+    } catch (e) {
+      return;
+    }
+  }
+
+  //Edit tasks
+  function handleEditTask(task: TaskList) {
+    setTaskEdit(task);
+    setInput(task.task);
+  }
+
+  //Cancel Edit
+  function handleCancelEdit() {
+    setInput("");
+    setTaskEdit(null);
   }
 
   return (
@@ -84,6 +130,15 @@ export default function Board({ user, data }: BoardProps) {
       </Head>
 
       <main className={styles.container}>
+        {taskEdit && (
+          <span className={styles.warnText}>
+            <button onClick={handleCancelEdit}>
+              <FiX size={30} color="#FF3636" />
+            </button>
+            Você está editando uma tarefa!
+          </span>
+        )}
+
         <form onSubmit={handleAddTask}>
           <input
             type="text"
