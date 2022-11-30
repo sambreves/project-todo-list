@@ -24,7 +24,7 @@ export default function Home() {
       <main className={styles.contentContainer}>
         <Image src={imagePeopleWorking} width={450} height={350} alt="people working" />
         <section className={styles.callToAction}>
-          <h1>Uma ferramenta para seu dia a dia Escreva, planeje e organize-se..</h1>
+          <h1>Uma ferramenta para seu dia a dia Escreva, planeje e organize-se...</h1>
           <p>
             <span>100% Gratuita</span> e online.
           </p>
