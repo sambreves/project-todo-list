@@ -21,7 +21,8 @@ export const authOptions: NextAuthOptions = {
       try {
         const q = query(collection(db, "supporters"));
         const respDonate = await getDocs(q);
-        const isSupporter: boolean = respDonate.docs[0].data().email ? true : false;
+        const isSupporter: boolean =
+          respDonate.docs[0].data().email === user.email ? true : false;
         return {
           ...session,
           supporter: isSupporter,
