@@ -43,8 +43,6 @@ export default function Board({ user, data }: BoardProps) {
   const [taskList, setTaskList] = useState<TaskList[]>(JSON.parse(data));
   const [taskEdit, setTaskEdit] = useState<TaskList | null>(null);
 
-  console.log(user);
-
   //Add tasks to Firestore Database
   async function handleAddTask(e: FormEvent) {
     e.preventDefault();
